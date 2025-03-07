@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique
+  createdAt      DateTime  @default(now())
+  hashedPassword String
+  hashedToken    String?
+  profiles       Profile[]
+  devices        Device[]
+
+  @@map("users")
+}
+
+model Admin {
+  id             Int     @id @default(autoincrement())
+  username       String  @unique
+  email          String  @unique
+  firstName      String
+  lastName       String
+  hashedPassword String
+  hashedToken    String?
+  isActive       Boolean @default(false)
+  isCreator      Boolean
+
+  @@map("admins")
+}
+
+model Genre {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String
+  images      GenreImage[]
+
+  @@map("genre")
+}
+
+model GenreImage {
+  id        Int     @id @default(autoincrement())
+  image_url String
+  genreId   Int
+  is_main   Boolean
+  genre     Genre   @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@map("genre_image")
+}
+
+model PaymentMethod {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("payment_method")
+}
+
+model Category {
+  id                 BigInt  @id @default(autoincrement())
+  name               String
+  description        String?
+  parent_category_id BigInt? @unique
+
+  parentCategory Category?  @relation("ParentChild", fields: [parent_category_id], references: [id])
+  subcategories  Category[] @relation("ParentChild")
+
+  @@map("category")
+}
+
+model Language {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  profiles Profile[]
+}
+
+model Profile {
+  id         Int      @id @default(autoincrement())
+  name       String
+  avatar     String?
+  age        Int?
+  is_active  Boolean  @default(false)
+  password   String
+  created_at DateTime @default(now())
+  is_main    Boolean  @default(false)
+  userId     Int
+  languageId Int
+
+  searches SearchHistory[]
+
+  user     User?     @relation(fields: [userId], references: [id])
+  language Language? @relation(fields: [languageId], references: [id])
+
+  @@map("profile")
+}
+
+model SearchHistory {
+  id           Int     @id @default(autoincrement())
+  profileId    Int
+  search_query String
+  profile      Profile @relation(fields: [profileId], references: [id])
+
+  @@map("search_history")
+}
+
+model Device {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  device_type String
+  device_name String
+  ip_address  String
+  last_active DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
