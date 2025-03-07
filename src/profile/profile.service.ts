@@ -23,7 +23,7 @@ export class ProfileService {
 
   async findAll() {
     return this.prisma.profile.findMany({
-      include: { user: true, language: true },
+      include: { user: true, language: true, subscriptions: true },
     });
   }
 

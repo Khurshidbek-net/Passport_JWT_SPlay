@@ -1,26 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSubscriptionPlanDto } from './dto/create-subscription-plan.dto';
 import { UpdateSubscriptionPlanDto } from './dto/update-subscription-plan.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class SubscriptionPlanService {
-  create(createSubscriptionPlanDto: CreateSubscriptionPlanDto) {
-    return 'This action adds a new subscriptionPlan';
+  constructor(private readonly prisma: PrismaService) { }
+  async create(createSubscriptionPlanDto: CreateSubscriptionPlanDto) {
+    return await this.prisma.subscriptionPlan.create({ data: createSubscriptionPlanDto })
   }
 
-  findAll() {
-    return `This action returns all subscriptionPlan`;
+  async findAll() {
+    return await this.prisma.subscriptionPlan.findMany({ include: { subscriptions: true } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} subscriptionPlan`;
+  async findOne(id: number) {
+    const result = await this.prisma.subscriptionPlan.findUnique({ where: { id } })
+    if (!result)
+      throw new NotFoundException('Plan not found')
+
+    return result;
   }
 
-  update(id: number, updateSubscriptionPlanDto: UpdateSubscriptionPlanDto) {
-    return `This action updates a #${id} subscriptionPlan`;
+  async update(id: number, updateSubscriptionPlanDto: UpdateSubscriptionPlanDto) {
+    return await this.prisma.subscriptionPlan.update({ where: { id }, data: { ...CreateSubscriptionPlanDto } })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} subscriptionPlan`;
+  async remove(id: number) {
+    await this.findOne(id)
+    return this.prisma.subscriptionPlan.delete({ where: { id } })
   }
 }

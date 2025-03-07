@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique
-  createdAt      DateTime  @default(now())
-  hashedPassword String
-  hashedToken    String?
-  isActive       Boolean   @default(false)
-  profiles       Profile[]
-  devices        Device[]
+  id               Int              @id @default(autoincrement())
+  email            String           @unique
+  createdAt        DateTime         @default(now())
+  hashedPassword   String
+  hashedToken      String?
+  isActive         Boolean          @default(false)
+  profiles         Profile[]
+  devices          Device[]
+  billingHistories BillingHistory[]
 
   @@map("users")
 }
@@ -35,10 +36,11 @@ model Admin {
 }
 
 model Genre {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String
-  images      GenreImage[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String
+  images        GenreImage[]
+  contentGenres ContentGenre[]
 
   @@map("genre")
 }
@@ -57,6 +59,8 @@ model PaymentMethod {
   id   Int    @id @default(autoincrement())
   name String
 
+  histories BillingHistory[]
+
   @@map("payment_method")
 }
 
@@ -66,8 +70,9 @@ model Category {
   description        String?
   parent_category_id BigInt? @unique
 
-  parentCategory Category?  @relation("ParentChild", fields: [parent_category_id], references: [id])
-  subcategories  Category[] @relation("ParentChild")
+  parentCategory   Category?         @relation("ParentChild", fields: [parent_category_id], references: [id])
+  subcategories    Category[]        @relation("ParentChild")
+  categoryContents CategoryContent[]
 
   @@map("category")
 }
@@ -93,8 +98,9 @@ model Profile {
 
   searches SearchHistory[]
 
-  user     User?     @relation(fields: [userId], references: [id])
-  language Language? @relation(fields: [languageId], references: [id])
+  user          User?          @relation(fields: [userId], references: [id])
+  language      Language?      @relation(fields: [languageId], references: [id])
+  subscriptions Subscription[]
 
   @@map("profile")
 }
@@ -116,4 +122,111 @@ model Device {
   ip_address  String
   last_active DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id])
+}
+
+model SubscriptionPlan {
+  id               Int     @id @default(autoincrement())
+  name             String
+  description      String?
+  monthly_price    Decimal
+  max_profile      BigInt
+  max_screens      BigInt
+  download_enabled Boolean
+  ads_enabled      Boolean
+  is_Active        Boolean
+
+  subscriptions Subscription[]
+
+  @@map("subscription_plan")
+}
+
+model Subscription {
+  id                  Int      @id @default(autoincrement())
+  profileId           Int
+  subscriptionPlanId  Int
+  start_date          DateTime
+  end_date            DateTime
+  auto_renew          Boolean
+  is_active           Boolean
+  last_amount_paid    Decimal
+  subscription_source String
+
+  billingHistories BillingHistory[]
+
+  SubscriptionPlan SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  Profile          Profile?          @relation(fields: [profileId], references: [id])
+}
+
+model BillingHistory {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  subscriptionId  Int
+  paymentMethodId Int
+  amount          Decimal
+  date            DateTime
+  status          BillingStatus
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  subscription    Subscription?  @relation(fields: [subscriptionId], references: [id])
+  user            User?          @relation(fields: [userId], references: [id])
+
+  @@map("billing_history")
+}
+
+enum BillingStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Content {
+  id                Int         @id @default(autoincrement())
+  title             String
+  release_year      DateTime
+  description       String
+  duration          Int
+  trailer_url       String
+  average_rating    Float
+  is_available      Boolean
+  country_of_origin Int
+  content_type      ContentType
+
+  categoryContents CategoryContent[]
+  contentGenres    ContentGenre[]
+  audion           ContentAudio[]
+}
+
+enum ContentType {
+  MOVIE
+  SERIES
+  DOCUMENTARY
+  OTHER
+}
+
+model CategoryContent {
+  id         Int       @id @default(autoincrement())
+  categoryId BigInt
+  contentId  Int
+  content    Content?  @relation(fields: [contentId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  @@map("category_content")
+}
+
+model ContentGenre {
+  id        Int      @id @default(autoincrement())
+  contentId Int
+  genreId   Int
+  Content   Content? @relation(fields: [contentId], references: [id])
+  Genre     Genre?   @relation(fields: [genreId], references: [id])
+
+  @@map("content_genre")
+}
+
+model ContentAudio {
+  id        Int     @id @default(autoincrement())
+  contentId Int
+  isMain    Boolean @default(false)
+  
+  Content   Content? @relation(fields: [contentId], references: [id])
 }

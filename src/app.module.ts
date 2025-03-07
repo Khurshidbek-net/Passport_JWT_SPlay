@@ -14,9 +14,15 @@ import { ProfileModule } from './profile/profile.module';
 import { SearchHistoryModule } from './search-history/search-history.module';
 import { DeviceModule } from './device/device.module';
 import { SubscriptionPlanModule } from './subscription-plan/subscription-plan.module';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { BillingHistoryModule } from './billing-history/billing-history.module';
+import { ContentModule } from './content/content.module';
+import { CategoryContentModule } from './category-content/category-content.module';
+import { ContentGenreModule } from './content-genre/content-genre.module';
+import { ContentAudioModule } from './content-audio/content-audio.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}), UserModule, PrismaModule, AuthModule, AdminModule, GenreModule, GenreImageModule, PaymentMethodModule, CategoryModule, LanguageModule, ProfileModule, SearchHistoryModule, DeviceModule, SubscriptionPlanModule],
+  imports: [ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}), UserModule, PrismaModule, AuthModule, AdminModule, GenreModule, GenreImageModule, PaymentMethodModule, CategoryModule, LanguageModule, ProfileModule, SearchHistoryModule, DeviceModule, SubscriptionPlanModule, SubscriptionModule, BillingHistoryModule, ContentModule, CategoryContentModule, ContentGenreModule, ContentAudioModule],
   controllers: [],
   providers: [PrismaService],
 })
