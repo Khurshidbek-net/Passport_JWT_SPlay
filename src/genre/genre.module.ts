@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { GenreService } from './genre.service';
 import { GenreController } from './genre.controller';
 import { PrismaModule } from '../prisma/prisma.module';
+import { JwtStrategy } from '../common/strategies/jwt.strategy';
 
 @Module({
   imports: [PrismaModule],
   controllers: [GenreController],
-  providers: [GenreService],
+  providers: [GenreService, JwtStrategy],
 })
 export class GenreModule {}

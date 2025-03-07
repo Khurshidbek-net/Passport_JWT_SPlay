@@ -13,6 +13,7 @@ model User {
   createdAt      DateTime  @default(now())
   hashedPassword String
   hashedToken    String?
+  isActive       Boolean   @default(false)
   profiles       Profile[]
   devices        Device[]
 

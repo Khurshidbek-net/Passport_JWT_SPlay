@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { GenreService } from './genre.service';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
+import { AccessTokenGuard } from '../common/guards';
+import { AdminGuard } from '../common/guards/admin.guard';
 
 @Controller('genre')
 export class GenreController {
@@ -12,6 +14,8 @@ export class GenreController {
     return this.genreService.create(createGenreDto);
   }
 
+  @UseGuards(AccessTokenGuard)
+  @UseGuards(AdminGuard)
   @Get()
   findAll() {
     return this.genreService.findAll();

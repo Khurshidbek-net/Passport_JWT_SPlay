@@ -13,9 +13,10 @@ import { LanguageModule } from './language/language.module';
 import { ProfileModule } from './profile/profile.module';
 import { SearchHistoryModule } from './search-history/search-history.module';
 import { DeviceModule } from './device/device.module';
+import { SubscriptionPlanModule } from './subscription-plan/subscription-plan.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}), UserModule, PrismaModule, AuthModule, AdminModule, GenreModule, GenreImageModule, PaymentMethodModule, CategoryModule, LanguageModule, ProfileModule, SearchHistoryModule, DeviceModule],
+  imports: [ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}), UserModule, PrismaModule, AuthModule, AdminModule, GenreModule, GenreImageModule, PaymentMethodModule, CategoryModule, LanguageModule, ProfileModule, SearchHistoryModule, DeviceModule, SubscriptionPlanModule],
   controllers: [],
   providers: [PrismaService],
 })

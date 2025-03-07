@@ -7,9 +7,11 @@ import { SignInDto } from './dto/sign-in.dto';
 import { Response } from 'express';
 import { CookieGetter } from '../decorators/cookie-getter.decorator';
 import { GetCurrentUserId } from '../common/decorators';
-import { RefreshTokenGuard } from '../common/guards';
+import { AccessTokenGuard, RefreshTokenGuard } from '../common/guards';
 import { GetCurrentUser } from '../common/decorators/get-current-user.decorator';
 import { JwtPayloadWithRefreshToken, ResponseFields } from '../common/types';
+import { AdminGuard } from '../common/guards/admin.guard';
+import { UserGuard } from '../common/guards/user.guard';
 
 
 @Controller('auth')
@@ -48,12 +50,18 @@ export class AuthController {
   }
 
 
+
+  @UseGuards(UserGuard)
+  @UseGuards(AccessTokenGuard)
   @HttpCode(200)
   @Post("signout")
   singout(@GetCurrentUserId() userId: number, @Res({ passthrough: true }) res: Response): Promise<boolean> {
     return this.userAuthService.signOut(+userId, res);
   }
 
+
+  @UseGuards(AdminGuard)
+  @UseGuards(AccessTokenGuard)
   @HttpCode(200)
   @Post("signout/admin")
   singoutAdmin(@GetCurrentUserId() adminId: number, @Res({ passthrough: true }) res: Response): Promise<boolean> {
@@ -61,6 +69,7 @@ export class AuthController {
   }
 
 
+  @UseGuards(UserGuard)
   @UseGuards(RefreshTokenGuard)
   @Post("refresh")
   @HttpCode(200)
@@ -73,6 +82,7 @@ export class AuthController {
   }
 
 
+  @UseGuards(AdminGuard)
   @UseGuards(RefreshTokenGuard)
   @Post("refresh/admin")
   @HttpCode(200)
@@ -83,5 +93,4 @@ export class AuthController {
   ): Promise<ResponseFields> {
     return this.adminAuthService.refreshToken(+adminId, refreshToken, res);
   }
-  
 }
